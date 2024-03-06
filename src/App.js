@@ -1,35 +1,19 @@
 import React, { useState } from "react";
 import './App.css';
-import axios from "axios";
+import { useWeather } from "./useWeather";
 
 function App() {
   const [input, setInput] = useState("");
-  const [data, setData] = useState({});
-  const [error, setError] = useState(null);
-
-  const Query = async (queryString) =>
-  {
-    const url = `https://api.openweathermap.org/data/2.5/weather?${queryString}&appid=0ccaf311e9c2b9d0dc75f35ccb924a0b&units=metric`;
-
-    try
-    {
-      const response = await axios.get(url);
-      setData(response.data);
-      setError("");
-    }
-    catch (error)
-    {
-      setError("API returned: " + error.message);
-    }
-  }
+  const { Query, data, error, isLoading, setError } = useWeather()
 
   const inputPress = async (event) =>
   {
     if (event.key === "Enter")
     {
       Query("q="+input);
+      setInput("");
     }
-    setInput("");
+    
   };
 
   const geoloc = async () =>
@@ -66,9 +50,12 @@ function App() {
           className="m-2 bg-slate-200 w-fit p-1 rounded-lg border-black border-2 self-center"
           onClick={geoloc}
         >Auto detect Your location</button>
+        <div className="self-center">
+        {isLoading && <p>loading...🐇</p>}
         {error && <p className="text-red-800 self-center">{error}</p>}
         {data.name && (
-          <div className="self-center">
+            <div>
+
             <img
             src={`http://openweathermap.org/img/wn/${data.weather[0].icon}.png`}
             alt={data.weather[0].description}
@@ -78,8 +65,9 @@ function App() {
             <p>Humidity: {data.main.humidity}%</p>
             <p>Pressure: {data.main.pressure} hPa</p>
             <p>Wind: {data.wind.speed} m/s</p>
-          </div>
-        )}
+            </div>
+            )}
+            </div>
       </div>
     </div>
   );
